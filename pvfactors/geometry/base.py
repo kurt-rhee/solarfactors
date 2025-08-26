@@ -1255,7 +1255,7 @@ class BasePVArray(object):
         """List of indices of all the timeseries surfaces"""
         return [ts_surf.index for ts_surf in self.all_ts_surfaces]
 
-    def plot_at_idx(self, idx, ax, merge_if_flag_overlap=True,
+    def plot_at_idx(self, idx, ax=None, merge_if_flag_overlap=True,
                     with_cut_points=True, x_min_max=None,
                     with_surface_index=False):
         """Plot all the PV rows and the ground in the PV array at a desired
@@ -1266,8 +1266,9 @@ class BasePVArray(object):
         ----------
         idx : int
             Selected timestep index for plotting the PV array
-        ax : :py:class:`matplotlib.pyplot.axes` object
-            Axes for plotting the PV array geometries
+        ax : :py:class:`matplotlib.pyplot.axes` object, optional
+            Axes for plotting the PV array geometries. If None, one will be
+            generated. (Default = None)
         merge_if_flag_overlap : bool, optional
             Decide whether to merge all shadows if they overlap
             (Default = True)
@@ -1280,6 +1281,14 @@ class BasePVArray(object):
         with_surface_index : bool, optional
             Plot the surfaces with their index values (Default = False)
         """
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise ImportError("The plot function requires matplotlib.")
+
+        if ax is None:
+            fig, ax = plt.subplots()
+
         # Plot pv array structures
         self.ts_ground.plot_at_idx(
             idx, ax, color_shaded=COLOR_DIC['ground_shaded'],

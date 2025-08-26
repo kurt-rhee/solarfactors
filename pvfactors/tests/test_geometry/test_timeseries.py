@@ -1,4 +1,4 @@
-import os
+import pytest
 from pvfactors.geometry.timeseries import TsPointCoords, TsLineCoords
 from pvfactors.geometry.pvrow import TsPVRow
 from pvfactors.geometry.pvground import TsGround, TsGroundElement
@@ -49,39 +49,36 @@ def test_ts_pvrow():
 
 
 def test_plot_ts_pvrow():
+    plt = pytest.importorskip("matplotlib.pyplot")
 
-    is_ci = os.environ.get('CI', False)
-    if not is_ci:
-        import matplotlib.pyplot as plt
+    # Create a PV row
+    xy_center = (0, 2)
+    width = 2.
+    df_inputs = pd.DataFrame({
+        'rotation_vec': [20., -30., 0.],
+        'shaded_length_front': [1.3, 0., 1.9],
+        'shaded_length_back': [0, 0.3, 0.6]})
+    cut = {'front': 3, 'back': 4}
 
-        # Create a PV row
-        xy_center = (0, 2)
-        width = 2.
-        df_inputs = pd.DataFrame({
-            'rotation_vec': [20., -30., 0.],
-            'shaded_length_front': [1.3, 0., 1.9],
-            'shaded_length_back': [0, 0.3, 0.6]})
-        cut = {'front': 3, 'back': 4}
+    ts_pvrow = TsPVRow.from_raw_inputs(
+        xy_center, width, df_inputs.rotation_vec,
+        cut, df_inputs.shaded_length_front,
+        df_inputs.shaded_length_back)
 
-        ts_pvrow = TsPVRow.from_raw_inputs(
-            xy_center, width, df_inputs.rotation_vec,
-            cut, df_inputs.shaded_length_front,
-            df_inputs.shaded_length_back)
+    # Plot it at ts 0
+    f, ax = plt.subplots()
+    ts_pvrow.plot_at_idx(0, ax)
+    plt.close(f)
 
-        # Plot it at ts 0
-        f, ax = plt.subplots()
-        ts_pvrow.plot_at_idx(0, ax)
-        plt.show()
+    # Plot it at ts 1
+    f, ax = plt.subplots()
+    ts_pvrow.plot_at_idx(1, ax)
+    plt.close(f)
 
-        # Plot it at ts 1
-        f, ax = plt.subplots()
-        ts_pvrow.plot_at_idx(1, ax)
-        plt.show()
-
-        # Plot it at ts 2: flat case
-        f, ax = plt.subplots()
-        ts_pvrow.plot_at_idx(2, ax)
-        plt.show()
+    # Plot it at ts 2: flat case
+    f, ax = plt.subplots()
+    ts_pvrow.plot_at_idx(2, ax)
+    plt.close(f)
 
 
 def test_ts_pvrow_to_geometry():

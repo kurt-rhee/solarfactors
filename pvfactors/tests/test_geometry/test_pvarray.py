@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import pytest
 from pvfactors.geometry.pvarray import OrderedPVArray
 from pvfactors.config import MAX_X_GROUND, MIN_X_GROUND, DISTANCE_TOLERANCE
 from pvfactors.geometry.pvground import TsGround
@@ -43,12 +44,10 @@ def test_ordered_pvarray_from_dict(params):
 
 def test_plot_ordered_pvarray():
     """Test that ordered pv array plotting works correctly"""
-    is_ci = os.environ.get('CI', False)
-    if not is_ci:
-        import matplotlib.pyplot as plt
+    plt = pytest.importorskip("matplotlib.pyplot")
 
-        # Create base params
-        params = {
+    # Create base params
+    params = {
             'n_pvrows': 3,
             'pvrow_height': 2.5,
             'pvrow_width': 2.,
@@ -61,21 +60,21 @@ def test_plot_ordered_pvarray():
             'rho_ground': 0.2,
             'rho_front_pvrow': 0.01,
             'rho_back_pvrow': 0.03
-        }
+    }
 
-        # Plot simple ordered pv array
-        ordered_pvarray = OrderedPVArray.fit_from_dict_of_scalars(params)
-        f, ax = plt.subplots()
-        ordered_pvarray.plot_at_idx(0, ax)
-        plt.show()
+    # Plot simple ordered pv array
+    ordered_pvarray = OrderedPVArray.fit_from_dict_of_scalars(params)
+    f, ax = plt.subplots()
+    ordered_pvarray.plot_at_idx(0, ax)
+    plt.close(f)
 
-        # Plot discretized ordered pv array
-        params.update({'cut': {0: {'front': 5}, 1: {'back': 3}},
-                       'surface_azimuth': 270.})  # point left
-        ordered_pvarray = OrderedPVArray.fit_from_dict_of_scalars(params)
-        f, ax = plt.subplots()
-        ordered_pvarray.plot_at_idx(0, ax)
-        plt.show()
+    # Plot discretized ordered pv array
+    params.update({'cut': {0: {'front': 5}, 1: {'back': 3}},
+                    'surface_azimuth': 270.})  # point left
+    ordered_pvarray = OrderedPVArray.fit_from_dict_of_scalars(params)
+    f, ax = plt.subplots()
+    ordered_pvarray.plot_at_idx(0, ax)
+    plt.close(f)
 
 
 def test_discretization_ordered_pvarray(discr_params):
